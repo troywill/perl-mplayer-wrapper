@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+my $file_to_watch = '/home/user/tmp/lid_state';
+my $old_mod_time = (stat($file_to_watch))[9];
+my $new_mod_time = $old_mod_time;
+while (1) {
+    select(undef, undef, undef, 0.25); # wait 0.25 seconds
+    while (1) {
+	$new_mod_time = (stat($file_to_watch))[9];
+	last if ( $new_mod_time == $old_mod_time );
+	&action();
+	$old_mod_time = $new_mod_time;
+    }
+}
+sub action {
+    system("/home/user/bin/lid &");
+}
