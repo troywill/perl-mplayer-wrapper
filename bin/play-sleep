@@ -3,11 +3,12 @@ $| = 1;
 use strict;
 use warnings;
 use English;
-my $rewind_interval = 10; # $rewind_interval: number of seconds to rewind before replaying audio
+my $rewind_interval = 0; # $rewind_interval: number of seconds to rewind before replaying audio
+my $play_interval = 300;
 $SIG{TERM} = \&sig_term; # What to do when we get a terminate signal
 $SIG{INT} = \&sig_term; # What to do when we get a CTRL-C
 my $state_file = '/home/user/tmp/audio';
-my $playlist_file = '/home/user/tmp/playlist';
+my $playlist_file = '/home/user/tmp/playlist.sleep';
 #my $player_command = "mplayer -really-quiet";
 my $player_command = "mplayer";
 
@@ -15,18 +16,21 @@ my $player_command = "mplayer";
 my ( $audio_file, $offset, @playlist ) = &read_playlist_file($playlist_file);
 $offset -= $rewind_interval;
 &start_audio_player( $audio_file, $offset, $player_command );
-# print `clear`;
+&blank_screen;
 &write_player_status( $state_file );
 
 # while ( defined fileno PLAYER ) {
 $/ = "\r";
 while (my $line = <PLAYER> ) {
     print "$line,<==\r", time - $BASETIME + $offset;
-    &sig_term if ( time - $BASETIME ) > 600; # for napping
+    &sig_term if ( time - $BASETIME ) > $play_interval; # for napping
 }
 &sig_term;
 
 ################ Subroutines only below this line ################
+sub blank_screen {
+    system("xset dpms force suspend");
+}
 
 sub read_playlist_file {
     my $playlist_file = shift;
