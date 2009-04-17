@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-$| = 1;
+$| = 1; # Turn off ouput buffering
 use strict;
 use warnings;
 use English;
