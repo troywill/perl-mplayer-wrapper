@@ -1,28 +1,28 @@
 #!/usr/bin/env perl
-# 7:33 PM
-$| = 1; # Turn off ouput buffering
 use strict;
 use warnings;
 use English;
-my $rewind_interval = 10; # $rewind_interval: number of seconds to rewind before replaying audio
+$| = 1; # Turn off ouput buffering
+my $rewind_interval = 10; # number of seconds to rewind before replaying audio
 $SIG{TERM} = \&sig_term; # What to do when we get a terminate signal
-$SIG{INT} = \&sig_term; # What to do when we get a CTRL-C
+$SIG{INT} = \&sig_int;  # What to do when we get a CTRL-C
 my $state_file = '/home/troy/tmp/audio';
 my $playlist_file = '/home/troy/tmp/playlist';
 #my $player_command = "mplayer -really-quiet";
 my $player_command = "mplayer";
 
 # Find out how far into the audio file we left off at last time
-my ( $audio_file, $offset, @playlist ) = &read_playlist_file($playlist_file);
-$offset -= $rewind_interval;
-&start_audio_player( $audio_file, $offset, $player_command );
-# print `clear`;
-&write_player_status( $state_file );
+# my ( $audio_file, $offset, @playlist ) = &read_playlist_file($playlist_file);
+# $offset -= $rewind_interval;
+# start_audio_player( $audio_file, $offset, $player_command );
+start_audio_player( '/tmp/1.mp3', 0, $player_command );
+# &write_player_status( $state_file );
 
 # while ( defined fileno PLAYER ) {
 $/ = "\r";
 while (my $line = <PLAYER> ) {
-    print "$line,<==\r", time - $BASETIME + $offset;
+#    print "$line,<==\r", time - $BASETIME + $offset;
+    print $line;
     &sig_term if ( time - $BASETIME ) > 600; # for napping
 }
 &sig_term;
@@ -45,11 +45,9 @@ sub read_playlist_file {
 
 sub start_audio_player {
     my ( $audio_file, $offset, $player_command ) = @_;
-#    system("killall --signal SIGTERM mplayer");
     print "$player_command -ss $offset $audio_file\n";
 #    my $pid = open2(\*CHLD_OUT, \*CHLD_IN, 'some cmd and args');
     open(PLAYER, "$player_command -ss $offset $audio_file|");
-#    print `clear`;
 }
 
 sub write_player_status {
@@ -63,23 +61,24 @@ sub write_player_status {
     close OUT;
 }
 
-sub write_playlist_file {
-    my ( $playlist_file, @playlist )  = @_;
-    open ( OUT, ">$playlist_file");
-    print OUT "0|$audio_file|", time - $BASETIME + $offset - $rewind_interval, "\n";
-    shift @playlist;
-    foreach my $line ( @playlist ) {
-	print OUT "$line\n";
-    }
-    close OUT;
-}
+# sub write_playlist_file {
+#     my ( $playlist_file, @playlist )  = @_;
+#     open ( OUT, ">$playlist_file");
+#     print OUT "0|$audio_file|", time - $BASETIME + $offset - $rewind_interval, "\n";
+#     shift @playlist;
+#     foreach my $line ( @playlist ) {
+# 	print OUT "$line\n";
+#     }
+#     close OUT;
+# }
 
-sub sig_term {
-    &write_playlist_file( $playlist_file, @playlist );
-#    print PLAYER 'q';
-    system("killall --signal SIGTERM mplayer");
-    &write_player_status( $state_file, 'exit' );
-    close PLAYER;
-    "Somebody sent me a terminate signal (SIGTERM 15)";
-    exit 0;
-}
+# sub sig_term {
+#     &write_playlist_file( $playlist_file, @playlist );
+# #    print PLAYER 'q';
+#     system("killall --signal SIGTERM mplayer");
+#     &write_player_status( $state_file, 'exit' );
+#     close PLAYER;
+#     print "Somebody sent me a terminate signal (SIGTERM 15)";
+#     exit 0;
+# }
+
