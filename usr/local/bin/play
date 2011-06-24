@@ -7,8 +7,8 @@ use English;
 my $rewind_interval = 10; # $rewind_interval: number of seconds to rewind before replaying audio
 $SIG{TERM} = \&sig_term; # What to do when we get a terminate signal
 $SIG{INT} = \&sig_term; # What to do when we get a CTRL-C
-my $state_file = '/home/user/tmp/audio';
-my $playlist_file = '/home/user/tmp/playlist';
+my $state_file = '/home/troy/tmp/audio';
+my $playlist_file = '/home/troy/tmp/playlist';
 #my $player_command = "mplayer -really-quiet";
 my $player_command = "mplayer";
 
